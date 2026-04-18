@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"curl -s \\\"http://localhost:8000/health\\\" 2>&1\",\"description\":\"Check if crawl4ai service is still up\"}",
+  "error": "Exit code 7",
+  "timestamp": "2026-04-17T12:05:18.073Z",
+  "retry_count": 2
+}

@@ -1,0 +1,287 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1776443480028,
+  "projectRoot": "/Users/markususche/open-lovable",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "next",
+        "version": "15.4.3",
+        "category": "fullstack"
+      },
+      {
+        "name": "react",
+        "version": "19.1.0",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "19.1.0",
+        "category": "frontend"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "npm run build",
+    "testCommand": null,
+    "lintCommand": "npm run lint",
+    "devCommand": "npm run dev",
+    "scripts": {
+      "dev": "next dev --turbopack",
+      "build": "next build",
+      "start": "next start",
+      "lint": "next lint",
+      "test:api": "node tests/api-endpoints.test.js",
+      "test:code": "node tests/code-execution.test.js",
+      "test:all": "npm run test:integration && npm run test:api && npm run test:code"
+    }
+  },
+  "conventions": {
+    "namingStyle": "camelCase",
+    "importStyle": "ES modules",
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "app",
+      "components",
+      "lib",
+      "public"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "app": {
+      "path": "app",
+      "purpose": "Application code",
+      "fileCount": 5,
+      "lastAccessed": 1776443479633,
+      "keyFiles": [
+        "favicon.ico",
+        "globals.css",
+        "landing.tsx",
+        "layout.tsx",
+        "page.tsx"
+      ]
+    },
+    "atoms": {
+      "path": "atoms",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1776443479634,
+      "keyFiles": [
+        "sheets.ts"
+      ]
+    },
+    "components": {
+      "path": "components",
+      "purpose": "UI components",
+      "fileCount": 6,
+      "lastAccessed": 1776443479747,
+      "keyFiles": [
+        "CodeApplicationProgress.tsx",
+        "FirecrawlIcon.tsx",
+        "FirecrawlLogo.tsx",
+        "HMRErrorDetector.tsx",
+        "HeroInput.tsx"
+      ]
+    },
+    "config": {
+      "path": "config",
+      "purpose": "Configuration files",
+      "fileCount": 1,
+      "lastAccessed": 1776443479749,
+      "keyFiles": [
+        "app.config.ts"
+      ]
+    },
+    "crawl4ai-service": {
+      "path": "crawl4ai-service",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1776443479749,
+      "keyFiles": [
+        "Dockerfile",
+        "main.py",
+        "requirements.txt"
+      ]
+    },
+    "hooks": {
+      "path": "hooks",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1776443479750,
+      "keyFiles": [
+        "useDebouncedCallback.ts",
+        "useDebouncedEffect.ts",
+        "useSwitchingCode.ts"
+      ]
+    },
+    "lib": {
+      "path": "lib",
+      "purpose": "Library code",
+      "fileCount": 9,
+      "lastAccessed": 1776443479750,
+      "keyFiles": [
+        "build-validator.ts",
+        "context-selector.ts",
+        "edit-examples.ts",
+        "edit-intent-analyzer.ts",
+        "file-parser.ts"
+      ]
+    },
+    "packages": {
+      "path": "packages",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1776443479750,
+      "keyFiles": []
+    },
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 6,
+      "lastAccessed": 1776443479750,
+      "keyFiles": [
+        "compressor.json",
+        "file.svg",
+        "firecrawl-logo",
+        "firecrawl.svg",
+        "globe.svg"
+      ]
+    },
+    "styles": {
+      "path": "styles",
+      "purpose": null,
+      "fileCount": 5,
+      "lastAccessed": 1776443479750,
+      "keyFiles": [
+        "chrome-bug.css",
+        "colors.json",
+        "fire.css",
+        "inside-border-fix.css",
+        "main.css"
+      ]
+    },
+    "types": {
+      "path": "types",
+      "purpose": "Type definitions",
+      "fileCount": 3,
+      "lastAccessed": 1776443479751,
+      "keyFiles": [
+        "conversation.ts",
+        "file-manifest.ts",
+        "sandbox.ts"
+      ]
+    },
+    "utils": {
+      "path": "utils",
+      "purpose": "Utility functions",
+      "fileCount": 4,
+      "lastAccessed": 1776443479751,
+      "keyFiles": [
+        "cn.ts",
+        "init-canvas.ts",
+        "set-timeout-on-visible.ts",
+        "sleep.ts"
+      ]
+    },
+    "app/api": {
+      "path": "app/api",
+      "purpose": "API routes",
+      "fileCount": 0,
+      "lastAccessed": 1776443479751,
+      "keyFiles": []
+    },
+    "components/app": {
+      "path": "components/app",
+      "purpose": "Application code",
+      "fileCount": 0,
+      "lastAccessed": 1776443479752,
+      "keyFiles": []
+    },
+    "styles/components": {
+      "path": "styles/components",
+      "purpose": "UI components",
+      "fileCount": 3,
+      "lastAccessed": 1776443479755,
+      "keyFiles": [
+        "button.css",
+        "code.css",
+        "index.css"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "app/api/apply-ai-code-stream/route.ts",
+      "accessCount": 3,
+      "lastAccessed": 1776445422417,
+      "type": "file"
+    },
+    {
+      "path": "app/generation/page.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1776445493487,
+      "type": "file"
+    },
+    {
+      "path": "app/api/apply-ai-code/route.ts",
+      "accessCount": 2,
+      "lastAccessed": 1776443534182,
+      "type": "file"
+    },
+    {
+      "path": "app/api/create-zip/route.ts",
+      "accessCount": 2,
+      "lastAccessed": 1776445450071,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 1,
+      "lastAccessed": 1776443567799,
+      "type": "directory"
+    },
+    {
+      "path": "app/api/generate-ai-code-stream/route.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776445976672,
+      "type": "file"
+    },
+    {
+      "path": "README.md",
+      "accessCount": 1,
+      "lastAccessed": 1776472967950,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

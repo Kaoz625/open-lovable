@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"git add app/api/inject-inspector/ components/PropertiesPanel.tsx CHANGES.md README.md .env.example app/api/create-zip/route.ts app/api/generate-ai-code-stream/route.ts app/generation/page....",
+  "error": "Exit code 1\n(eval):1: no matches found: components/app/(home)/sections/hero/Badge/Badge.tsx",
+  "timestamp": "2026-04-18T00:44:08.057Z",
+  "retry_count": 1
+}
