@@ -1,8 +1,0 @@
-{"t":0,"agent":"a1199b4","agent_type":"unknown","event":"agent_stop","success":true}
-{"t":0,"agent":"system","event":"keyword_detected","keyword":"wiki"}
-{"t":0,"agent":"ab27842","agent_type":"executor","event":"agent_start","parent_mode":"none"}
-{"t":0,"agent":"ab27842","agent_type":"executor","event":"agent_stop","success":true,"duration_ms":392592}
-{"t":0,"agent":"ab92256","agent_type":"unknown","event":"agent_stop","success":true}
-{"t":0,"agent":"a9f4913","agent_type":"unknown","event":"agent_stop","success":true}
-{"t":0,"agent":"a11c689","agent_type":"unknown","event":"agent_stop","success":true}
-{"t":0,"agent":"aa1dd43","agent_type":"unknown","event":"agent_stop","success":true}

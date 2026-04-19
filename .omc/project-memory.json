@@ -241,15 +241,27 @@
   },
   "hotPaths": [
     {
-      "path": "app/api/apply-ai-code-stream/route.ts",
-      "accessCount": 3,
-      "lastAccessed": 1776445422417,
+      "path": "app/api/generate-ai-code-stream/route.ts",
+      "accessCount": 29,
+      "lastAccessed": 1776532184202,
       "type": "file"
     },
     {
       "path": "app/generation/page.tsx",
+      "accessCount": 16,
+      "lastAccessed": 1776532008365,
+      "type": "file"
+    },
+    {
+      "path": "config/app.config.ts",
+      "accessCount": 5,
+      "lastAccessed": 1776521309694,
+      "type": "file"
+    },
+    {
+      "path": "app/api/apply-ai-code-stream/route.ts",
       "accessCount": 3,
-      "lastAccessed": 1776445493487,
+      "lastAccessed": 1776445422417,
       "type": "file"
     },
     {
@@ -265,16 +277,22 @@
       "type": "file"
     },
     {
+      "path": "components/PropertiesPanel.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1776474905651,
+      "type": "file"
+    },
+    {
+      "path": ".env",
+      "accessCount": 2,
+      "lastAccessed": 1776520732762,
+      "type": "file"
+    },
+    {
       "path": "",
       "accessCount": 1,
       "lastAccessed": 1776443567799,
       "type": "directory"
-    },
-    {
-      "path": "app/api/generate-ai-code-stream/route.ts",
-      "accessCount": 1,
-      "lastAccessed": 1776445976672,
-      "type": "file"
     },
     {
       "path": "README.md",

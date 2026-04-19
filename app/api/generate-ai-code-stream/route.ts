@@ -39,10 +39,31 @@ const googleGenerativeAI = createGoogleGenerativeAI({
   baseURL: isUsingAIGateway ? aiGatewayBaseURL : undefined,
 });
 
-const openai = createOpenAI({
-  apiKey: process.env.AI_GATEWAY_API_KEY || process.env.OPENAI_API_KEY,
-  baseURL: isUsingAIGateway ? aiGatewayBaseURL : process.env.OPENAI_BASE_URL,
-});
+// OpenAI clients — primary key + up to 11 rotation keys
+const openAIKeys = [
+  process.env.AI_GATEWAY_API_KEY || process.env.OPENAI_API_KEY,
+  process.env.OPENAI_API_KEY_1,
+  process.env.OPENAI_API_KEY_2,
+  process.env.OPENAI_API_KEY_3,
+  process.env.OPENAI_API_KEY_4,
+  process.env.OPENAI_API_KEY_5,
+  process.env.OPENAI_API_KEY_6,
+  process.env.OPENAI_API_KEY_7,
+  process.env.OPENAI_API_KEY_8,
+  process.env.OPENAI_API_KEY_9,
+  process.env.OPENAI_API_KEY_10,
+  process.env.OPENAI_API_KEY_11,
+].filter(Boolean) as string[];
+
+const openAIClients = openAIKeys.map(key =>
+  createOpenAI({
+    apiKey: key,
+    baseURL: isUsingAIGateway ? aiGatewayBaseURL : process.env.OPENAI_BASE_URL,
+  })
+);
+
+const openai = openAIClients[0];
+console.log('[generate-ai-code-stream] OpenAI keys loaded:', openAIKeys.length);
 
 // OpenRouter clients — one per API key for automatic key rotation on rate limits
 const openRouterKeys = [
@@ -65,6 +86,15 @@ const openRouterClients = openRouterKeys.map(key =>
 );
 
 console.log('[generate-ai-code-stream] OpenRouter keys loaded:', openRouterKeys.length);
+
+// LiteLLM proxy client — routes through local proxy at port 4000
+// Handles key rotation, fallbacks, and drop_params automatically
+const litellmClient = process.env.LITELLM_BASE_URL ? createOpenAI({
+  apiKey: process.env.LITELLM_API_KEY || 'sk-litellm-markus-2026',
+  baseURL: `${process.env.LITELLM_BASE_URL}/v1`,
+}) : null;
+
+console.log('[generate-ai-code-stream] LiteLLM proxy:', process.env.LITELLM_BASE_URL || 'not configured');
 
 // Helper function to analyze user preferences from conversation history
 function analyzeUserPreferences(messages: ConversationMessage[]): {
@@ -1240,14 +1270,18 @@ MORPH FAST APPLY MODE (EDIT-ONLY):
         const isOpenAI = model.startsWith('openai/');
         const isGroq = model.startsWith('groq/');
         const isOpenRouter = model.startsWith('openrouter/');
-        const modelProvider = isAnthropic ? anthropic :
+        const isLiteLLM = model.startsWith('litellm/');
+        const modelProvider = isLiteLLM ? (litellmClient || openai) :
+                              (isAnthropic ? anthropic :
                               (isGoogle ? googleGenerativeAI :
-                              (isOpenAI ? openai :
-                              (isOpenRouter ? openRouterClients[0] : groq))); // groq/ prefix → groq, else groq fallback
+                              (isOpenAI ? openAIClients[0] :
+                              (isOpenRouter ? openRouterClients[0] : groq))));
 
         // Strip provider prefix to get the actual model name for the SDK
         let actualModel: string;
-        if (isAnthropic) {
+        if (isLiteLLM) {
+          actualModel = model.replace('litellm/', '');
+        } else if (isAnthropic) {
           actualModel = model.replace('anthropic/', '');
         } else if (isOpenAI) {
           actualModel = model.replace('openai/', '');
@@ -1261,7 +1295,7 @@ MORPH FAST APPLY MODE (EDIT-ONLY):
           actualModel = model;
         }
 
-        const providerName = isAnthropic ? 'Anthropic' : isGoogle ? 'Google' : isOpenAI ? 'OpenAI' : isOpenRouter ? 'OpenRouter' : 'Groq';
+        const providerName = isLiteLLM ? 'LiteLLM' : isAnthropic ? 'Anthropic' : isGoogle ? 'Google' : isOpenAI ? 'OpenAI' : isOpenRouter ? 'OpenRouter' : 'Groq';
         console.log(`[generate-ai-code-stream] Using provider: ${providerName}, model: ${actualModel}`);
         console.log(`[generate-ai-code-stream] AI Gateway enabled: ${isUsingAIGateway}`);
         console.log(`[generate-ai-code-stream] Model string: ${model}`);
@@ -1343,13 +1377,14 @@ It's better to have 3 complete files than 10 incomplete files.`
             }
           ],
           maxTokens: maxOutputTokens,
-          stopSequences: [] // Don't stop early
-          // Note: Neither Groq nor Anthropic models support tool/function calling in this context
-          // We use XML tags for package detection instead
         };
-        
-        // Add temperature for non-reasoning models
-        if (!model.startsWith('openai/gpt-5')) {
+
+        // Reasoning models that don't support temperature:
+        // OpenAI: o1, o3, o4, gpt-5.4
+        // OpenRouter: nemotron models
+        const isReasoningModel = /openai\/(o1|o3|o4|gpt-5\.4)/.test(model) ||
+                                  model.includes('nemotron');
+        if (!isReasoningModel) {
           streamOptions.temperature = 0.7;
         }
         
@@ -1412,14 +1447,31 @@ It's better to have 3 complete files than 10 incomplete files.`
                 const nextKeyIndex = retryCount % openRouterClients.length;
                 console.log(`[generate-ai-code-stream] Rotating to OpenRouter key ${nextKeyIndex + 1}/${openRouterClients.length}`);
                 streamOptions.model = openRouterClients[nextKeyIndex](actualModel);
+              } else if (isOpenAI && openAIClients.length > 1) {
+                // Rotate to next OpenAI key
+                const nextKeyIndex = retryCount % openAIClients.length;
+                console.log(`[generate-ai-code-stream] Rotating to OpenAI key ${nextKeyIndex + 1}/${openAIClients.length}`);
+                streamOptions.model = openAIClients[nextKeyIndex](actualModel);
               }
             } else {
-              // Non-retryable error or retries exhausted for Anthropic — send error to user
-              await sendProgress({
-                type: 'error',
-                error: `${providerName} error: ${streamError.message}`
-              });
-              throw streamError;
+              // Non-retryable error (or Anthropic exhausted retries)
+              // For non-Anthropic providers: fall back to Claude Haiku instead of failing
+              if (!isAnthropic) {
+                console.log(`[generate-ai-code-stream] ${providerName} non-retryable error, falling back to Claude Haiku`);
+                await sendProgress({
+                  type: 'info',
+                  message: `${providerName} error — falling back to Claude Haiku...`
+                });
+                streamOptions.model = anthropic('claude-haiku-4-5-20251001');
+                actualModel = 'claude-haiku-4-5-20251001';
+                retryCount++; // allow one more attempt with Haiku
+              } else {
+                await sendProgress({
+                  type: 'error',
+                  error: `${providerName} error: ${streamError.message}`
+                });
+                throw streamError;
+              }
             }
           }
         }
@@ -1798,7 +1850,7 @@ Provide the complete file content without any truncation. Include all necessary 
                     },
                     { role: 'user', content: completionPrompt }
                   ],
-                  temperature: model.startsWith('openai/gpt-5') ? undefined : appConfig.ai.defaultTemperature
+                  temperature: /openai\/(o1|o3|o4|gpt-5\.4)/.test(model) ? undefined : appConfig.ai.defaultTemperature
                 });
                 
                 // Get the full text from the stream

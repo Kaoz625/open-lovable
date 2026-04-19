@@ -386,13 +386,47 @@ function AISandboxPage() {
     reader.onload = (ev) => {
       const html = ev.target?.result as string;
       if (!html) return;
-      // Truncate to 60k chars to stay within context limits
-      const truncated = html.length > 60000 ? html.substring(0, 60000) + '\n[...truncated]' : html;
-      setAiChatInput(`Recreate this HTML as a modern React app. Keep the same layout, content, and design:\n\n\`\`\`html\n${truncated}\n\`\`\``);
-      addChatMessage(`Loaded HTML file: ${file.name} (${Math.round(html.length / 1024)}KB) — ready to recreate as React.`, 'system');
+
+      // Compress HTML: strip comments, collapse whitespace, keep structure intact
+      const compressed = html
+        .replace(/<!--[\s\S]*?-->/g, '')           // remove HTML comments
+        .replace(/\/\*[\s\S]*?\*\//g, '')           // remove CSS block comments
+        .replace(/[ \t]{2,}/g, ' ')                 // collapse multiple spaces/tabs → single space
+        .replace(/\n{3,}/g, '\n\n')                 // collapse 3+ blank lines → 2
+        .trim();
+
+      // Use a generous limit — models with large context (Gemini, Claude) can handle 120k+
+      const maxChars = 110000;
+      const isTruncated = compressed.length > maxChars;
+      const finalHtml = isTruncated ? compressed.substring(0, maxChars) + '\n\n<!-- [TRUNCATED — remaining content omitted] -->' : compressed;
+
+      const prompt = `Recreate this HTML file as a pixel-perfect React + Vite app.
+
+CRITICAL REQUIREMENTS:
+- Preserve ALL text content, headings, paragraphs, phone numbers, emails, addresses exactly
+- Preserve ALL colors (copy the exact hex values from CSS variables and inline styles)
+- Preserve ALL fonts (copy Google Fonts links and font-family declarations exactly)
+- Preserve ALL sections and their order (hero, services, gallery, contact, etc.)
+- Preserve ALL layout structure (nav, cards, grid, flex, etc.)
+- Keep ALL animations and hover effects
+- Use inline styles or a <style> tag to match the design exactly — do NOT invent new Tailwind classes that don't match the original
+- If there are CSS custom properties (--variables), replicate them in :root
+- The final result should look identical to the original when rendered
+
+HTML file: ${file.name} (${Math.round(html.length / 1024)}KB${isTruncated ? ', compressed+truncated' : ''})
+
+\`\`\`html
+${finalHtml}
+\`\`\``;
+
+      setAiChatInput(prompt);
+      addChatMessage(
+        `Loaded "${file.name}" (${Math.round(html.length / 1024)}KB raw → ${Math.round(compressed.length / 1024)}KB compressed${isTruncated ? ', truncated to 110k chars' : ''}) — ready to recreate as React.`,
+        'system'
+      );
     };
     reader.readAsText(file);
-    e.target.value = ''; // reset so same file can be re-imported
+    e.target.value = '';
   };
 
   useEffect(() => {
@@ -1637,8 +1671,8 @@ Tip: I automatically detect and install npm packages from your code imports (lik
             <iframe
               ref={iframeRef}
               src={sandboxData.url}
-              className={`w-full h-full border-none ${inspectorActive && selectedElement ? 'mr-52' : ''}`}
-              style={inspectorActive && selectedElement ? { width: 'calc(100% - 208px)' } : {}}
+              className={`w-full h-full border-none ${inspectorActive && selectedElement ? 'mr-72' : ''}`}
+              style={inspectorActive && selectedElement ? { width: 'calc(100% - 288px)' } : {}}
               title="Open Lovable Sandbox"
               allow="clipboard-write"
               sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
@@ -3404,12 +3438,13 @@ Focus on the key sections and content, making it clean and modern.`;
             onChange={(e) => {
               const newModel = e.target.value;
               setAiModel(newModel);
+              // Use replace (not push) so model change doesn't trigger re-mount/nav
               const params = new URLSearchParams(searchParams);
               params.set('model', newModel);
               if (sandboxData?.sandboxId) {
                 params.set('sandbox', sandboxData.sandboxId);
               }
-              router.push(`/generation?${params.toString()}`);
+              router.replace(`/generation?${params.toString()}`, { scroll: false });
               // Abort ongoing generation when model is switched
               if (generationProgress.isGenerating && generationAbortRef.current) {
                 generationAbortRef.current.abort();
